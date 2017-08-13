@@ -1,4 +1,5 @@
 
+
 #class longitudinal data
 Longitudinal <- setClass("Longitudinal", 
          slots = list(
@@ -9,11 +10,22 @@ Longitudinal <- setClass("Longitudinal",
              timepoint = "numeric"
          ))
 
-setClass("subject", 
+subject <- setClass("subject", 
          slots = list(
              id = "numeric"
          ),
          contains = "Longitudinal")
+
+visit <- setClass("visit",
+         slots = list(
+             visit = "integer"
+         ),
+         contains = "Longitudinal")
+room <- setClass("room",
+         slots = list(
+             room = "factor"
+         ),
+         contains = "visit")
 
 setGeneric("make_LD",function(x){
     standardGeneric("make_LD")
@@ -38,8 +50,8 @@ setMethod("subject",
           c(x = "Longitudinal"),
           function(x, n){
               idx = c(x@id == n)
-              Longitudinal(
-                  id = x@id[idx],
+              new("subject",
+                  id = n,
                   visit = x@visit[idx],
                   room = x@room[idx],
                   value = x@value[idx],
@@ -50,13 +62,18 @@ setMethod("subject",
 
 
 
-setMethod("print", c(x = "Longitudinal"),
+setMethod("print", c(x = "subject"),
           function(x){
-              cat()
+              cat("ID: ",x@id)
+              callNextMethod()
           })
 
 
-
+setMethod("print", c(x = "visit"),
+          function(x){
+              cat("Visit: ", x@visit)
+              callNextMethod()
+          })
 
 
 
