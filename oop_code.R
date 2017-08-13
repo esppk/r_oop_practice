@@ -36,6 +36,9 @@ setGeneric("subject",function(x,n){
 setGeneric("visit",function(x,n){
     standardGeneric("visit")
 })
+setGeneric("room",function(x,n){
+    standardGeneric("room")
+})
 
 setMethod("make_LD",
           c(x = "data.frame"),
@@ -77,22 +80,48 @@ setMethod("visit",
               
           })
 
+setMethod("room",
+          c(x = "Longitudinal"),
+          function(x, n){
+              n <- factor(n, level = c("bedroom", "den","dining room", 
+                                              "family  room" ,"hall", "kitchen",    
+                                              "living room", "office", "study room",  
+                                              "tv room" ))
+              idx = c(x@room == n)
+              new("room",
+                  room = n,
+                  visit = x@visit,
+                  id = x@id,
+                  value = x@value[idx],
+                  timepoint = x@timepoint[idx]
+              )
+          })
+
 
 
 setMethod("print", c(x = "subject"),
           function(x){
-              cat("ID: ",x@id)
               callNextMethod()
+              cat("ID: ",x@id)
+             
           })
 
 
 setMethod("print", c(x = "visit"),
           function(x){
-              cat("Visit: ", x@visit)
-              cat("\n")
               callNextMethod()
+              cat("\n")
+              cat("Visit: ", x@visit)
           })
 
+setMethod("print", c(x = "room"),
+          function(x){
+              callNextMethod()
+              cat("\n")
+              cat("Room: ", as.character(x@room))
+              
+              
+          })
 
 
 
