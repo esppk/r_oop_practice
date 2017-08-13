@@ -4,7 +4,7 @@
 Longitudinal <- setClass("Longitudinal", 
          slots = list(
              id = "numeric",
-             visit = "integer",
+             visit = "numeric",
              room = "factor",
              value = "numeric",
              timepoint = "numeric"
@@ -18,9 +18,9 @@ subject <- setClass("subject",
 
 visit <- setClass("visit",
          slots = list(
-             visit = "integer"
+             visit = "numeric"
          ),
-         contains = "Longitudinal")
+         contains = "subject")
 room <- setClass("room",
          slots = list(
              room = "factor"
@@ -32,6 +32,9 @@ setGeneric("make_LD",function(x){
 })
 setGeneric("subject",function(x,n){
     standardGeneric("subject")
+})
+setGeneric("visit",function(x,n){
+    standardGeneric("visit")
 })
 
 setMethod("make_LD",
@@ -60,6 +63,20 @@ setMethod("subject",
               
           })
 
+setMethod("visit",
+          c(x = "Longitudinal"),
+          function(x, n){
+              idx = c(x@visit == n)
+              new("visit",
+                  visit = n,
+                  id = x@id,
+                  room = x@room[idx],
+                  value = x@value[idx],
+                  timepoint = x@timepoint[idx]
+              )
+              
+          })
+
 
 
 setMethod("print", c(x = "subject"),
@@ -72,8 +89,11 @@ setMethod("print", c(x = "subject"),
 setMethod("print", c(x = "visit"),
           function(x){
               cat("Visit: ", x@visit)
+              cat("\n")
               callNextMethod()
           })
+
+
 
 
 
