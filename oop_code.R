@@ -39,6 +39,9 @@ setGeneric("visit",function(x,n){
 setGeneric("room",function(x,n){
     standardGeneric("room")
 })
+setGeneric("summary", function(x){
+    standardGeneric("summary")
+})
 
 setMethod("make_LD",
           c(x = "data.frame"),
@@ -56,13 +59,16 @@ setMethod("subject",
           c(x = "Longitudinal"),
           function(x, n){
               idx = c(x@id == n)
-              new("subject",
-                  id = n,
-                  visit = x@visit[idx],
-                  room = x@room[idx],
-                  value = x@value[idx],
-                  timepoint = x@timepoint[idx]
-              )
+              if(any(idx)){
+                  new("subject",
+                      id = n,
+                      visit = x@visit[idx],
+                      room = x@room[idx],
+                      value = x@value[idx],
+                      timepoint = x@timepoint[idx] ) 
+              }else{return(NULL)}
+              
+            
               
           })
 
@@ -101,9 +107,8 @@ setMethod("room",
 
 setMethod("print", c(x = "subject"),
           function(x){
-              callNextMethod()
+              
               cat("ID: ",x@id)
-             
           })
 
 
@@ -119,12 +124,34 @@ setMethod("print", c(x = "room"),
               callNextMethod()
               cat("\n")
               cat("Room: ", as.character(x@room))
-              
-              
+          })
+setMethod("print",c(x = "Longitudinal"),
+          function(x){
+              cat("Longitudinal dataset with", length(levels(ld@room)))
+              cat(" subjects")
           })
 
 
 
+setMethod("summary",c(x = "subject"),
+          function(x){
+              require(tidyr)
+              require(dplyr)
+              df <- tibble(visit = x@visit, room = x@room,
+                           value = x@value)
+              cat("ID: ", x@id)
+              cat("\n")
+              re <- df %>% group_by(visit,room) %>% 
+                  summarise(avg = mean(value)) %>% 
+                  spread(room, avg)
+              class(re) <- "data.frame"
+              print(re)
+          })
+
+setMethod("summary", c(x = "room"),
+          function(x){
+              summary.default(x@value)
+          })
 
 
 
