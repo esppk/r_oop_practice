@@ -26,7 +26,12 @@ room <- setClass("room",
              room = "factor"
          ),
          contains = "visit")
-
+setClass("summary",
+         slots = list(
+             id = "numeric",
+             df = "data.frame"
+         )) 
+ 
 setGeneric("make_LD",function(x){
     standardGeneric("make_LD")
 })
@@ -131,7 +136,12 @@ setMethod("print",c(x = "Longitudinal"),
               cat(" subjects")
           })
 
-
+setMethod("print",c(x = "summary"),
+          function(x){
+              cat("ID: ",x@id)
+              cat("\n")
+              x@df
+          })
 
 setMethod("summary",c(x = "subject"),
           function(x){
@@ -139,18 +149,27 @@ setMethod("summary",c(x = "subject"),
               require(dplyr)
               df <- tibble(visit = x@visit, room = x@room,
                            value = x@value)
-              cat("ID: ", x@id)
-              cat("\n")
-              re <- df %>% group_by(visit,room) %>% 
+            
+              df <- df %>% group_by(visit,room) %>% 
                   summarise(avg = mean(value)) %>% 
                   spread(room, avg)
-              class(re) <- "data.frame"
-              print(re)
+              class(df) <- "data.frame"
+              new("summary",
+                  id = x@id,
+                  df = df)
           })
 
 setMethod("summary", c(x = "room"),
           function(x){
-              summary.default(x@value)
+              s <- summary.default(x@value)
+              name <- names(s)
+              attributes(s) <- NULL
+              l <- list()
+              s <- as.data.frame(lapply(seq_along(s), function(x){l[x] = s[x]}))
+              names(s) <- name
+              new("summary",
+                  id = x@id,
+                  df = s)
           })
 
 
