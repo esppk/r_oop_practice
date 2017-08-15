@@ -54,7 +54,7 @@ setMethod("make_LD",
               LD <- new("Longitudinal",
                         id = x$id,
                         visit = x$visit,
-                        room = x$room,
+                        room = as.factor(x$room),
                         value = x$value,
                         timepoint = x$timepoint) 
               
